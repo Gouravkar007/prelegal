@@ -19,7 +19,7 @@ desktop.ini
 *.key
 
 # Agent Credentials & Local Configurations
-.agents/mcp_config.json
+.agents/
 **/mcp_config.json
 
 # Python / FastAPI
