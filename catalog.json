@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Common Paper Mutual NDA",
+    "description": "Standard mutual non-disclosure agreement for sharing confidential information between two parties.",
+    "filename": "Mutual-NDA.md"
+  },
+  {
+    "name": "Common Paper Mutual NDA Cover Page",
+    "description": "Cover page and key terms summary sheet for the Common Paper Mutual NDA.",
+    "filename": "Mutual-NDA-coverpage.md"
+  },
+  {
+    "name": "Common Paper Cloud Service Agreement (CSA)",
+    "description": "Standard cloud service agreement (SaaS agreement) establishing terms for software subscriptions, service availability, and usage.",
+    "filename": "CSA.md"
+  },
+  {
+    "name": "Common Paper Service Level Agreement (SLA) Addendum",
+    "description": "Service level agreement addendum defining uptime commitments, support response times, and service credits.",
+    "filename": "sla.md"
+  },
+  {
+    "name": "Common Paper Data Processing Addendum (DPA)",
+    "description": "Data processing addendum governing data privacy, GDPR compliance, and data controller/processor responsibilities.",
+    "filename": "DPA.md"
+  },
+  {
+    "name": "Common Paper Design Partner Agreement",
+    "description": "Agreement for early-stage design partners testing products and providing feedback.",
+    "filename": "design-partner-agreement.md"
+  },
+  {
+    "name": "Common Paper Professional Services Agreement (PSA)",
+    "description": "Framework agreement for professional services, consulting, and statements of work (SOW).",
+    "filename": "psa.md"
+  },
+  {
+    "name": "Common Paper Partnership Agreement",
+    "description": "Commercial partnership agreement for co-marketing, referral, or reseller partnerships.",
+    "filename": "Partnership-Agreement.md"
+  },
+  {
+    "name": "Common Paper Business Associate Agreement (BAA) Addendum",
+    "description": "Business associate agreement addendum for HIPAA compliance and handling Protected Health Information (PHI).",
+    "filename": "BAA.md"
+  },
+  {
+    "name": "Common Paper Software License Agreement",
+    "description": "On-premises or downloadable software license agreement governing software installation, scope of use, and audit rights.",
+    "filename": "Software-License-Agreement.md"
+  },
+  {
+    "name": "Common Paper Pilot Agreement",
+    "description": "Short-term pilot agreement for evaluating software or services during a trial period.",
+    "filename": "Pilot-Agreement.md"
+  },
+  {
+    "name": "Common Paper AI Addendum",
+    "description": "Addendum governing the use of Artificial Intelligence features, model training rights, and AI output ownership.",
+    "filename": "AI-Addendum.md"
+  }
+]
