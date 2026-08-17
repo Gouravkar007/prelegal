@@ -79,10 +79,23 @@ ${data.modifications}
 
   const handleCopyMarkdown = async () => {
     const md = generateMarkdown();
-    await navigator.clipboard.writeText(md);
-    setCopied(true);
-    triggerConfetti();
-    setTimeout(() => setCopied(false), 2500);
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(md);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = md;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      triggerConfetti();
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Copy markdown failed:', err);
+    }
   };
 
   const handleDownloadMarkdown = () => {
@@ -91,7 +104,9 @@ ${data.modifications}
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `MNDA_${data.party1.companyName.replace(/\s+/g, '_')}_vs_${data.party2.companyName.replace(/\s+/g, '_')}.md`;
+    const p1 = (data.party1.companyName || 'Party1').replace(/[^a-zA-Z0-9_-]/g, '');
+    const p2 = (data.party2.companyName || 'Party2').replace(/[^a-zA-Z0-9_-]/g, '');
+    link.download = `MNDA_${p1}_vs_${p2}.md`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -123,15 +138,15 @@ ${data.modifications}
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+      while (heightLeft > 2) {
+        position -= pageHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
 
-      const p1Name = data.party1.companyName ? data.party1.companyName.replace(/\s+/g, '_') : 'Party1';
-      const p2Name = data.party2.companyName ? data.party2.companyName.replace(/\s+/g, '_') : 'Party2';
+      const p1Name = (data.party1.companyName || 'Party1').replace(/[^a-zA-Z0-9_-]/g, '');
+      const p2Name = (data.party2.companyName || 'Party2').replace(/[^a-zA-Z0-9_-]/g, '');
       const filename = `MNDA_${p1Name}_vs_${p2Name}.pdf`;
 
       pdf.save(filename);

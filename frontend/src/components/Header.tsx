@@ -86,6 +86,7 @@ export const Header: React.FC<HeaderProps> = ({
             <select
               value={selectedPresetId}
               onChange={handlePresetChange}
+              aria-label="Load Sample NDA Preset Scenario"
               className="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer max-w-[180px]"
             >
               <option value="" className="bg-slate-800 text-slate-400">
@@ -102,6 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Catalog Library Modal Trigger */}
           <button
             onClick={onOpenCatalog}
+            aria-label="Browse all 12 Common Paper legal templates catalog"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors shadow-sm"
             title="Browse all 12 Common Paper Legal Templates"
           >
@@ -112,6 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Reset Button */}
           <button
             onClick={onReset}
+            aria-label="Reset all fields to default values"
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700"
             title="Reset to default fields"
           >

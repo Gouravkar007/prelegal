@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { NDAData } from '../types/nda';
-import { Calendar, ShieldAlert, Scale, Clock, Sparkles, Edit3 } from 'lucide-react';
+import { Calendar, Scale, Clock, Sparkles, Edit3 } from 'lucide-react';
 
 interface TermsFormProps {
   data: NDAData;
@@ -43,10 +43,11 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-400">
+          <label htmlFor="nda-purpose" className="text-xs font-medium text-slate-400">
             How Confidential Information may be used by either party
           </label>
           <textarea
+            id="nda-purpose"
             rows={3}
             value={data.purpose}
             onChange={(e) => onChange({ purpose: e.target.value })}
@@ -83,10 +84,11 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Effective Date */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+            <label htmlFor="nda-effectiveDate" className="text-xs font-medium text-slate-400 flex items-center gap-1">
               <Calendar className="w-3 h-3 text-slate-500" /> Effective Date
             </label>
             <input
+              id="nda-effectiveDate"
               type="date"
               value={data.effectiveDate}
               onChange={(e) => onChange({ effectiveDate: e.target.value })}
@@ -96,11 +98,12 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
 
           {/* MNDA Term Selection */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-400">MNDA Agreement Term</label>
+            <label htmlFor="nda-mndaTermType" className="text-xs font-medium text-slate-400">MNDA Agreement Term</label>
             <div className="flex items-center gap-2">
               <select
+                id="nda-mndaTermType"
                 value={data.mndaTermType}
-                onChange={(e) => onChange({ mndaTermType: e.target.value as any })}
+                onChange={(e) => onChange({ mndaTermType: e.target.value as 'expires_years' | 'until_terminated' })}
                 className="px-3 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer flex-1"
               >
                 <option value="expires_years">Expires after fixed years</option>
@@ -110,11 +113,13 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
               {data.mndaTermType === 'expires_years' && (
                 <div className="flex items-center gap-1 w-24">
                   <input
+                    id="nda-mndaTermYears"
+                    aria-label="MNDA term years"
                     type="number"
                     min={1}
                     max={10}
                     value={data.mndaTermYears}
-                    onChange={(e) => onChange({ mndaTermYears: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => onChange({ mndaTermYears: Math.max(1, parseInt(e.target.value) || 1) })}
                     className="w-full px-2 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 text-slate-100 text-center focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <span className="text-xs text-slate-400">Yr(s)</span>
@@ -125,13 +130,14 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
 
           {/* Confidentiality Term Selection */}
           <div className="space-y-1.5 sm:col-span-2">
-            <label className="text-xs font-medium text-slate-400">
+            <label htmlFor="nda-confidentialityTermType" className="text-xs font-medium text-slate-400">
               Term of Confidentiality Protection
             </label>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <select
+                id="nda-confidentialityTermType"
                 value={data.confidentialityTermType}
-                onChange={(e) => onChange({ confidentialityTermType: e.target.value as any })}
+                onChange={(e) => onChange({ confidentialityTermType: e.target.value as 'years' | 'perpetuity' })}
                 className="px-3 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer flex-1"
               >
                 <option value="years">Fixed number of years from Effective Date</option>
@@ -141,12 +147,14 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
               {data.confidentialityTermType === 'years' && (
                 <div className="flex items-center gap-1 w-full sm:w-32">
                   <input
+                    id="nda-confidentialityTermYears"
+                    aria-label="Confidentiality term years"
                     type="number"
                     min={1}
                     max={15}
                     value={data.confidentialityTermYears}
                     onChange={(e) =>
-                      onChange({ confidentialityTermYears: parseInt(e.target.value) || 1 })
+                      onChange({ confidentialityTermYears: Math.max(1, parseInt(e.target.value) || 1) })
                     }
                     className="w-full px-2 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 text-slate-100 text-center focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
@@ -171,9 +179,10 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* Governing Law State */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-400">Governing Law State</label>
+            <label htmlFor="nda-governingLawState" className="text-xs font-medium text-slate-400">Governing Law State</label>
             <div className="flex gap-2">
               <select
+                id="nda-governingLawState"
                 value={data.governingLawState}
                 onChange={(e) => onChange({ governingLawState: e.target.value })}
                 className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
@@ -189,8 +198,9 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
 
           {/* Jurisdiction */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-400">Court Jurisdiction Location</label>
+            <label htmlFor="nda-jurisdiction" className="text-xs font-medium text-slate-400">Court Jurisdiction Location</label>
             <input
+              id="nda-jurisdiction"
               type="text"
               value={data.jurisdiction}
               onChange={(e) => onChange({ jurisdiction: e.target.value })}
@@ -209,10 +219,11 @@ export const TermsForm: React.FC<TermsFormProps> = ({ data, onChange }) => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-400">
+          <label htmlFor="nda-modifications" className="text-xs font-medium text-slate-400">
             Special Amendments or Overrides to Standard Terms (Optional)
           </label>
           <textarea
+            id="nda-modifications"
             rows={2}
             value={data.modifications}
             onChange={(e) => onChange({ modifications: e.target.value })}

@@ -20,7 +20,7 @@ export const NDADocumentPreview: React.FC<NDADocumentPreviewProps> = ({ data, do
       return <span>{stringVal}</span>;
     }
     return (
-      <mark className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 font-semibold px-1 rounded border border-amber-300/60 dark:border-amber-700/60 transition-all">
+      <mark className="bg-amber-100 text-amber-950 font-semibold px-1 rounded border border-amber-300 transition-all">
         {stringVal}
       </mark>
     );

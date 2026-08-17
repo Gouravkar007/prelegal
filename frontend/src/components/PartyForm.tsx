@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { NDAData, NDAParty } from '../types/nda';
-import { Building2, User, Mail, MapPin, ArrowLeftRight, FileText } from 'lucide-react';
+import { Building2, User, Mail, MapPin, ArrowLeftRight } from 'lucide-react';
 
 interface PartyFormProps {
   data: NDAData;
@@ -24,6 +24,7 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
     const party = data[partyKey];
     const borderAccent = colorScheme === 'indigo' ? 'border-indigo-500/30 hover:border-indigo-500/50' : 'border-cyan-500/30 hover:border-cyan-500/50';
     const badgeBg = colorScheme === 'indigo' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
+    const pPrefix = partyKey;
 
     return (
       <div className={`p-4 sm:p-5 rounded-2xl bg-slate-900/60 border ${borderAccent} backdrop-blur-sm transition-all space-y-4`}>
@@ -40,10 +41,11 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* Company Name */}
           <div className="space-y-1 sm:col-span-2">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+            <label htmlFor={`${pPrefix}-companyName`} className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
               <span>Company Legal Name</span>
             </label>
             <input
+              id={`${pPrefix}-companyName`}
               type="text"
               value={party.companyName}
               onChange={(e) => updateParty(partyKey, 'companyName', e.target.value)}
@@ -54,8 +56,9 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
 
           {/* Entity Type */}
           <div className="space-y-1 sm:col-span-2">
-            <label className="text-xs font-medium text-slate-400">Entity Type & Jurisdiction</label>
+            <label htmlFor={`${pPrefix}-entityType`} className="text-xs font-medium text-slate-400">Entity Type & Jurisdiction</label>
             <input
+              id={`${pPrefix}-entityType`}
               type="text"
               value={party.entityType}
               onChange={(e) => updateParty(partyKey, 'entityType', e.target.value)}
@@ -66,10 +69,11 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
 
           {/* Address */}
           <div className="space-y-1 sm:col-span-2">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+            <label htmlFor={`${pPrefix}-address`} className="text-xs font-medium text-slate-400 flex items-center gap-1">
               <MapPin className="w-3 h-3 text-slate-500" /> Notice Address
             </label>
             <input
+              id={`${pPrefix}-address`}
               type="text"
               value={party.address}
               onChange={(e) => updateParty(partyKey, 'address', e.target.value)}
@@ -80,10 +84,11 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
 
           {/* Email */}
           <div className="space-y-1 sm:col-span-2">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+            <label htmlFor={`${pPrefix}-email`} className="text-xs font-medium text-slate-400 flex items-center gap-1">
               <Mail className="w-3 h-3 text-slate-500" /> Notice Email
             </label>
             <input
+              id={`${pPrefix}-email`}
               type="email"
               value={party.email}
               onChange={(e) => updateParty(partyKey, 'email', e.target.value)}
@@ -94,10 +99,11 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
 
           {/* Signatory Name */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+            <label htmlFor={`${pPrefix}-signatoryName`} className="text-xs font-medium text-slate-400 flex items-center gap-1">
               <User className="w-3 h-3 text-slate-500" /> Signatory Name
             </label>
             <input
+              id={`${pPrefix}-signatoryName`}
               type="text"
               value={party.signatoryName}
               onChange={(e) => updateParty(partyKey, 'signatoryName', e.target.value)}
@@ -108,8 +114,9 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
 
           {/* Signatory Title */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-400">Signatory Title</label>
+            <label htmlFor={`${pPrefix}-signatoryTitle`} className="text-xs font-medium text-slate-400">Signatory Title</label>
             <input
+              id={`${pPrefix}-signatoryTitle`}
               type="text"
               value={party.signatoryTitle}
               onChange={(e) => updateParty(partyKey, 'signatoryTitle', e.target.value)}
@@ -132,6 +139,7 @@ export const PartyForm: React.FC<PartyFormProps> = ({ data, onChange, onSwapPart
         <button
           type="button"
           onClick={onSwapParties}
+          aria-label="Swap Party 1 and Party 2 details"
           className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-all shadow-sm group hover:scale-105 active:scale-95"
         >
           <ArrowLeftRight className="w-3.5 h-3.5 text-indigo-400 group-hover:rotate-180 transition-transform duration-300" />
