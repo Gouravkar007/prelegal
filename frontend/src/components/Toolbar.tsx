@@ -1,0 +1,145 @@
+'use client';
+
+import React from 'react';
+import { NDAData } from '../types/nda';
+import { Download, Copy, Printer, Check, FileDown, Sparkles } from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+interface ToolbarProps {
+  data: NDAData;
+  documentRef: React.RefObject<HTMLDivElement | null>;
+}
+
+export const Toolbar: React.FC<ToolbarProps> = ({ data, documentRef }) => {
+  const [copied, setCopied] = React.useState(false);
+  const [isExportingPdf, setIsExportingPdf] = React.useState(false);
+
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 70,
+      spread: 60,
+      origin: { y: 0.8 },
+      colors: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b'],
+    });
+  };
+
+  const generateMarkdown = () => {
+    return `# Mutual Non-Disclosure Agreement
+
+## Cover Page
+
+### Purpose
+${data.purpose}
+
+### Effective Date
+${data.effectiveDate}
+
+### MNDA Term
+${data.mndaTermType === 'expires_years' ? `- [x] Expires ${data.mndaTermYears} year(s) from Effective Date.` : `- [x] Continues until terminated.`}
+
+### Term of Confidentiality
+${data.confidentialityTermType === 'years' ? `- [x] ${data.confidentialityTermYears} year(s) from Effective Date.` : `- [x] In perpetuity.`}
+
+### Governing Law & Jurisdiction
+Governing Law: ${data.governingLawState}
+Jurisdiction: ${data.jurisdiction}
+
+### MNDA Modifications
+${data.modifications}
+
+### Signatures
+
+| FIELD | PARTY 1 | PARTY 2 |
+|:--- |:--- |:--- |
+| **Print Name** | ${data.party1.signatoryName} | ${data.party2.signatoryName} |
+| **Title** | ${data.party1.signatoryTitle} | ${data.party2.signatoryTitle} |
+| **Company** | ${data.party1.companyName} (${data.party1.entityType}) | ${data.party2.companyName} (${data.party2.entityType}) |
+| **Notice Address** | ${data.party1.address} (${data.party1.email}) | ${data.party2.address} (${data.party2.email}) |
+| **Date** | ${data.effectiveDate} | ${data.effectiveDate} |
+
+---
+
+# Common Paper Mutual NDA Standard Terms (v1.0)
+
+1. **Introduction**. This Mutual Non-Disclosure Agreement...
+2. **Use and Protection of Confidential Information**...
+3. **Exceptions**...
+4. **Disclosures Required by Law**...
+5. **Term and Termination**...
+6. **Return or Destruction of Confidential Information**...
+7. **Proprietary Rights**...
+8. **Disclaimer**...
+9. **Governing Law and Jurisdiction**. State of ${data.governingLawState}, courts in ${data.jurisdiction}.
+10. **Equitable Relief**...
+11. **General**...
+`;
+  };
+
+  const handleCopyMarkdown = async () => {
+    const md = generateMarkdown();
+    await navigator.clipboard.writeText(md);
+    setCopied(true);
+    triggerConfetti();
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleDownloadMarkdown = () => {
+    const md = generateMarkdown();
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `MNDA_${data.party1.companyName.replace(/\s+/g, '_')}_vs_${data.party2.companyName.replace(/\s+/g, '_')}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    triggerConfetti();
+  };
+
+  const handlePrintOrPdf = () => {
+    triggerConfetti();
+    window.print();
+  };
+
+  return (
+    <div className="bg-slate-900/90 border border-slate-800 p-3 sm:p-4 rounded-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shadow-xl print:hidden">
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-indigo-400" />
+        <span className="text-xs font-semibold text-slate-200">Export & Share NDA</span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Copy Markdown */}
+        <button
+          type="button"
+          onClick={handleCopyMarkdown}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors shadow-sm"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-indigo-400" />}
+          <span>{copied ? 'Copied to Clipboard!' : 'Copy Markdown'}</span>
+        </button>
+
+        {/* Download .md */}
+        <button
+          type="button"
+          onClick={handleDownloadMarkdown}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors shadow-sm"
+        >
+          <FileDown className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Download .MD</span>
+        </button>
+
+        {/* Print / Save PDF */}
+        <button
+          type="button"
+          onClick={handlePrintOrPdf}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white transition-all shadow-md shadow-indigo-500/20"
+        >
+          <Printer className="w-3.5 h-3.5" />
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  );
+};
