@@ -50,7 +50,7 @@ export default function Home() {
       />
 
       {/* Main Workspace Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start print:block print:w-full print:p-0 print:m-0">
         {/* ========================================================================= */}
         {/* LEFT COLUMN: FORM EDITOR (Steps: 1. Parties, 2. Terms) */}
         {/* ========================================================================= */}
@@ -125,7 +125,7 @@ export default function Home() {
         <div
           className={`lg:col-span-7 space-y-4 ${
             mobileActiveTab === 'edit' ? 'hidden lg:block' : 'block'
-          }`}
+          } print:block print:w-full print:m-0 print:p-0`}
         >
           {/* Action Toolbar */}
           <Toolbar data={ndaData} documentRef={documentRef} />

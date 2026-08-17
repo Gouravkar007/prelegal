@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { NDAData } from '../types/nda';
-import { Download, Copy, Printer, Check, FileDown, Sparkles } from 'lucide-react';
+import { Download, Copy, Printer, Check, FileDown, Sparkles, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface ToolbarProps {
   data: NDAData;
@@ -16,8 +18,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ data, documentRef }) => {
 
   const triggerConfetti = () => {
     confetti({
-      particleCount: 70,
-      spread: 60,
+      particleCount: 75,
+      spread: 70,
       origin: { y: 0.8 },
       colors: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b'],
     });
@@ -97,7 +99,52 @@ ${data.modifications}
     triggerConfetti();
   };
 
-  const handlePrintOrPdf = () => {
+  const handleDownloadPdf = async () => {
+    if (!documentRef.current) return;
+    try {
+      setIsExportingPdf(true);
+      const canvasEl = documentRef.current;
+
+      const canvas = await html2canvas(canvasEl, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const p1Name = data.party1.companyName ? data.party1.companyName.replace(/\s+/g, '_') : 'Party1';
+      const p2Name = data.party2.companyName ? data.party2.companyName.replace(/\s+/g, '_') : 'Party2';
+      const filename = `MNDA_${p1Name}_vs_${p2Name}.pdf`;
+
+      pdf.save(filename);
+      triggerConfetti();
+    } catch (err) {
+      console.error('PDF Export failed, falling back to print dialog:', err);
+      window.print();
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
+  const handlePrint = () => {
     triggerConfetti();
     window.print();
   };
@@ -130,14 +177,29 @@ ${data.modifications}
           <span>Download .MD</span>
         </button>
 
-        {/* Print / Save PDF */}
+        {/* Direct PDF File Download */}
         <button
           type="button"
-          onClick={handlePrintOrPdf}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white transition-all shadow-md shadow-indigo-500/20"
+          onClick={handleDownloadPdf}
+          disabled={isExportingPdf}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-600/20 disabled:opacity-50"
+        >
+          {isExportingPdf ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Download className="w-3.5 h-3.5" />
+          )}
+          <span>{isExportingPdf ? 'Exporting PDF...' : 'Download PDF'}</span>
+        </button>
+
+        {/* Browser Print / Save PDF Dialog */}
+        <button
+          type="button"
+          onClick={handlePrint}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white transition-all shadow-md shadow-indigo-500/20"
         >
           <Printer className="w-3.5 h-3.5" />
-          <span>Print / Save PDF</span>
+          <span>Print</span>
         </button>
       </div>
     </div>

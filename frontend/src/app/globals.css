@@ -52,37 +52,60 @@ body {
 
 /* Print Styles for PDF / Paper Printing */
 @media print {
-  body {
-    background: white !important;
-    color: black !important;
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   header,
-  .print\:hidden {
+  nav,
+  .print\:hidden,
+  .lg\:col-span-5 {
     display: none !important;
   }
 
-  main {
+  main,
+  .lg\:col-span-7 {
     display: block !important;
+    width: 100% !important;
     max-width: 100% !important;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    float: none !important;
   }
 
   #nda-document-canvas {
+    display: block !important;
+    visibility: visible !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 20px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
     max-width: 100% !important;
-    background: white !important;
-    color: black !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  #nda-document-canvas * {
+    color: #000000 !important;
+    background-color: transparent !important;
   }
 
   mark {
     background: transparent !important;
-    color: black !important;
-    padding: 0 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
     border: none !important;
+  }
+
+  table, th, td {
+    border-color: #94a3b8 !important;
   }
 }
