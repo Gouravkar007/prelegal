@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PreLegal Frontend Web Application ⚖️
 
-## Getting Started
+This is the Next.js 16 frontend application for **PreLegal**, an open-source web platform for drafting and customizing standard **Common Paper** legal agreements.
 
-First, run the development server:
+> For full project documentation, architectural overview, and legal template catalog details, see the root [`README.md`](../README.md).
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development Server
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧪 Testing
 
-## Learn More
+### Automated Unit & Integration Tests
 
-To learn more about Next.js, take a look at the following resources:
+Run all 12 Vitest component and integration tests:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Manual QA Guide
 
-## Deploy on Vercel
+For detailed manual testing instructions covering party synchronization, party swap, PDF generation, print preview, and template catalog modals, refer to [`MANUAL_TESTING.md`](./MANUAL_TESTING.md).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Tech Stack & Dependencies
+
+- **Framework**: Next.js 16 (App Router)
+- **UI Engine**: React 19, TypeScript
+- **Styling**: Tailwind CSS v4, Lucide React
+- **PDF & Canvas Export**: `jspdf`, `html2canvas`
+- **Effects**: `canvas-confetti`
+- **Test Runner**: Vitest, React Testing Library
