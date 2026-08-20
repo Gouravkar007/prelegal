@@ -8,15 +8,25 @@ import { TermsForm } from '../components/TermsForm';
 import { NDADocumentPreview } from '../components/NDADocumentPreview';
 import { Toolbar } from '../components/Toolbar';
 import { CatalogModal } from '../components/CatalogModal';
+import { LoginScreen } from '../components/LoginScreen';
 import { Users, FileText, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function Home() {
+  const [user, setUser] = React.useState<{ email: string; name: string } | null>(null);
   const [ndaData, setNdaData] = React.useState<NDAData>(DEFAULT_NDA_DATA);
   const [stepTab, setStepTab] = React.useState<'parties' | 'terms'>('parties');
   const [mobileActiveTab, setMobileActiveTab] = React.useState<'edit' | 'preview'>('edit');
   const [isCatalogOpen, setIsCatalogOpen] = React.useState(false);
 
   const documentRef = React.useRef<HTMLDivElement | null>(null);
+
+  const handleLogin = (userCreds: { email: string; name: string }) => {
+    setUser(userCreds);
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+  };
 
   const handleUpdate = (updated: Partial<NDAData>) => {
     setNdaData((prev) => ({ ...prev, ...updated }));
@@ -38,6 +48,10 @@ export default function Home() {
     setNdaData(DEFAULT_NDA_DATA);
   };
 
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Navigation Header */}
@@ -47,6 +61,8 @@ export default function Home() {
         onSelectPreset={handleSelectPreset}
         activeTab={mobileActiveTab}
         setActiveTab={setMobileActiveTab}
+        user={user}
+        onSignOut={handleSignOut}
       />
 
       {/* Main Workspace Layout */}
@@ -65,7 +81,7 @@ export default function Home() {
               onClick={() => setStepTab('parties')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
                 stepTab === 'parties'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                  ? 'bg-[#209dd7] text-white shadow-md shadow-[#209dd7]/20'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -76,7 +92,7 @@ export default function Home() {
               onClick={() => setStepTab('terms')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
                 stepTab === 'terms'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                  ? 'bg-[#209dd7] text-white shadow-md shadow-[#209dd7]/20'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -110,7 +126,7 @@ export default function Home() {
             {stepTab === 'parties' && (
               <button
                 onClick={() => setStepTab('terms')}
-                className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all"
+                className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#209dd7] hover:bg-[#1a85b8] text-white text-xs font-semibold shadow-md shadow-[#209dd7]/20 transition-all cursor-pointer"
               >
                 <span>Continue to Agreement Terms</span>
                 <span>&rarr;</span>
