@@ -60,3 +60,17 @@ def test_login_auth(client):
     data = response.json()
     assert data["status"] == "success"
     assert data["user"]["email"] == "login.test@prelegal.io"
+
+def test_ai_chat(client):
+    response = client.post(
+        "/api/chat",
+        json={
+            "messages": [{"role": "user", "content": "Set Party 1 to Acme Corp"}],
+            "current_data": {}
+        }
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert "reply" in data
+    assert "updated_fields" in data

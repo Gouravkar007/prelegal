@@ -53,3 +53,11 @@ Backend available at http://localhost:8000
 - Purple Secondary: `#753991` (submit buttons)
 - Dark Navy: `#032147` (headings)
 - Gray Text: `#888888`
+
+## Implementation Status
+
+### PL-4: V1 Product Foundation (Completed)
+- **Frontend Architecture**: Next.js 16 app configured for static export (`output: 'export'`) with a prototype authentication screen (`LoginScreen.tsx`), user session state management, and color palette alignment.
+- **FastAPI Backend & SQLite**: `uv` FastAPI backend in `backend/` with auto-initializing SQLite database on startup (`users` table creation & seed demo data). Exposes `/api/health`, `/api/users`, and `/api/auth/login` endpoints while serving static frontend assets.
+- **Docker Containerization**: Multi-stage `Dockerfile` and cross-platform start/stop scripts in `scripts/` (`start-mac.sh`, `stop-mac.sh`, `start-linux.sh`, `stop-linux.sh`, `start-windows.ps1`, `stop-windows.ps1`) running on http://localhost:8000.
+- **Automated Testing**: 15 Vitest frontend unit/integration tests and 4 Pytest backend tests passing.

@@ -6,7 +6,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.database import init_db, get_db_connection
-from app.models import UserCreate, UserResponse, LoginRequest, LoginResponse
+from app.models import UserCreate, UserResponse, LoginRequest, LoginResponse, ChatRequest, ChatResponse
+from app.ai_chat import process_ai_chat
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -105,6 +106,19 @@ def login(request: LoginRequest):
         )
     finally:
         conn.close()
+
+@app.post("/api/chat", response_model=ChatResponse)
+def ai_chat(request: ChatRequest):
+    try:
+        messages_dicts = [m.model_dump() for m in request.messages]
+        result = process_ai_chat(messages_dicts, request.current_data)
+        return ChatResponse(
+            reply=result.get("reply", "I'm ready to help you fill out your NDA!"),
+            updated_fields=result.get("updated_fields", {}),
+            status="success"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
 
 # Static file serving for Next.js build
 STATIC_DIR = os.getenv("STATIC_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static_frontend")))

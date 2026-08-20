@@ -9,12 +9,13 @@ import { NDADocumentPreview } from '../components/NDADocumentPreview';
 import { Toolbar } from '../components/Toolbar';
 import { CatalogModal } from '../components/CatalogModal';
 import { LoginScreen } from '../components/LoginScreen';
-import { Users, FileText, CheckCircle2, RefreshCw } from 'lucide-react';
+import { AIChatPanel } from '../components/AIChatPanel';
+import { Users, FileText, Bot, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const [user, setUser] = React.useState<{ email: string; name: string } | null>(null);
   const [ndaData, setNdaData] = React.useState<NDAData>(DEFAULT_NDA_DATA);
-  const [stepTab, setStepTab] = React.useState<'parties' | 'terms'>('parties');
+  const [stepTab, setStepTab] = React.useState<'chat' | 'parties' | 'terms'>('chat');
   const [mobileActiveTab, setMobileActiveTab] = React.useState<'edit' | 'preview'>('edit');
   const [isCatalogOpen, setIsCatalogOpen] = React.useState(false);
 
@@ -68,7 +69,7 @@ export default function Home() {
       {/* Main Workspace Layout */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start print:block print:w-full print:p-0 print:m-0">
         {/* ========================================================================= */}
-        {/* LEFT COLUMN: FORM EDITOR (Steps: 1. Parties, 2. Terms) */}
+        {/* LEFT COLUMN: EDITOR (Tabs: AI Chat, Party Details, MNDA Terms) */}
         {/* ========================================================================= */}
         <div
           className={`lg:col-span-5 space-y-4 ${
@@ -78,32 +79,45 @@ export default function Home() {
           {/* Sub-header step selector */}
           <div className="flex items-center bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 backdrop-blur-md">
             <button
+              onClick={() => setStepTab('chat')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-semibold transition-all ${
+                stepTab === 'chat'
+                  ? 'bg-gradient-to-r from-[#209dd7] to-[#753991] text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>AI Chat</span>
+            </button>
+            <button
               onClick={() => setStepTab('parties')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-semibold transition-all ${
                 stepTab === 'parties'
                   ? 'bg-[#209dd7] text-white shadow-md shadow-[#209dd7]/20'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>1. Party Details</span>
+              <span>Parties</span>
             </button>
             <button
               onClick={() => setStepTab('terms')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-semibold transition-all ${
                 stepTab === 'terms'
                   ? 'bg-[#209dd7] text-white shadow-md shadow-[#209dd7]/20'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>2. MNDA Terms</span>
+              <span>Terms</span>
             </button>
           </div>
 
-          {/* Form Step Content */}
+          {/* Form / Chat Step Content */}
           <div className="transition-all duration-300">
-            {stepTab === 'parties' ? (
+            {stepTab === 'chat' ? (
+              <AIChatPanel data={ndaData} onUpdate={handleUpdate} />
+            ) : stepTab === 'parties' ? (
               <PartyForm data={ndaData} onChange={handleUpdate} onSwapParties={handleSwapParties} />
             ) : (
               <TermsForm data={ndaData} onChange={handleUpdate} />

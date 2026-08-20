@@ -20,3 +20,16 @@ class LoginResponse(BaseModel):
     status: str
     message: str
     user: UserResponse
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+    current_data: Optional[dict] = None
+
+class ChatResponse(BaseModel):
+    reply: str
+    updated_fields: dict
+    status: str = "success"
