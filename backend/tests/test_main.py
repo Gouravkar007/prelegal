@@ -8,12 +8,19 @@ from app.database import init_db
 
 @pytest.fixture(autouse=True)
 def setup_temp_db():
-    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-        os.environ["DATABASE_PATH"] = tmp.name
-        init_db(tmp.name)
-        yield tmp.name
-    if os.path.exists(tmp.name):
-        os.remove(tmp.name)
+    tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+    db_path = tmp.name
+    tmp.close()
+    
+    os.environ["DATABASE_PATH"] = db_path
+    init_db(db_path)
+    yield db_path
+    
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+        except OSError:
+            pass
 
 @pytest.fixture
 def client(setup_temp_db):

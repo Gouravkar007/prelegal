@@ -1,14 +1,14 @@
 import sqlite3
 import os
 
-DB_PATH = os.getenv("DATABASE_PATH", "prelegal.db")
-
-def init_db(db_path: str = DB_PATH):
+def init_db(db_path: str = None):
     """
     Initializes SQLite database from scratch on startup.
-    If database file exists, it removes it or resets tables to ensure a clean state
-    each time the application or container starts up.
+    Dynamically reads DATABASE_PATH from environment.
     """
+    if db_path is None:
+        db_path = os.getenv("DATABASE_PATH", "prelegal.db")
+        
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -22,7 +22,7 @@ def init_db(db_path: str = DB_PATH):
         );
     """)
     
-    # Seed default demo user if not present
+    # Seed default demo user if table is empty
     cursor.execute("SELECT COUNT(*) FROM users;")
     if cursor.fetchone()[0] == 0:
         cursor.execute(
@@ -33,7 +33,9 @@ def init_db(db_path: str = DB_PATH):
     conn.commit()
     conn.close()
 
-def get_db_connection(db_path: str = DB_PATH):
+def get_db_connection(db_path: str = None):
+    if db_path is None:
+        db_path = os.getenv("DATABASE_PATH", "prelegal.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn

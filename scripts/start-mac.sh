@@ -18,4 +18,4 @@ echo "▶️ Launching PreLegal container on port 8000..."
 docker run -d --name prelegal-app -p 8000:8000 prelegal:latest
 
 echo "✅ PreLegal V1 is running successfully!"
-echo "🌐 Backend & Application available at: http://localhost:8000"
+echo "🌐 Backend and Application available at: http://localhost:8000"

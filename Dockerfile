@@ -33,8 +33,9 @@ COPY --from=frontend-builder /app/frontend/out /app/backend/static_frontend
 
 WORKDIR /app/backend
 
-# Install python dependencies with uv
-RUN uv pip install --system -e .
+# Install python dependencies
+COPY backend/requirements.txt /app/backend/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
