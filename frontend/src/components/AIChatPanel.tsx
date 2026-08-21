@@ -19,7 +19,8 @@ interface AIChatPanelProps {
 const QUICK_PROMPTS = [
   'Set Party 1 to Acme Corp in Delaware',
   'Set Party 2 to Global Tech Inc in California',
-  'Set purpose to evaluating SaaS integration partnership',
+  'Draft a Cloud Service Agreement (CSA)',
+  'Draft a Data Processing Addendum (DPA)',
   'Set confidentiality term to Perpetuity',
   'Set agreement term to 3 years',
 ];
@@ -30,12 +31,13 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       id: 'welcome',
       role: 'assistant',
       content:
-        "Hello! I'm PreLegal AI ⚖️. Tell me about your agreement or company details, and I will automatically populate your Common Paper Mutual NDA fields in real-time!",
+        "Hello! I'm PreLegal AI ⚖️. Tell me about your agreement or company details, and I will automatically populate your Common Paper legal document fields in real-time!",
     },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
@@ -72,6 +74,10 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
         const resData = await response.json();
         const rawFields = resData.updated_fields || {};
         const updatedFields: Partial<NDAData> = {};
+
+        if (rawFields.documentType) {
+          updatedFields.documentType = rawFields.documentType;
+        }
 
         if (rawFields.party1) {
           updatedFields.party1 = {
@@ -143,6 +149,14 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       const updates: Partial<NDAData> = {};
       const summary: string[] = [];
 
+      if (text.includes('csa') || text.includes('cloud service')) {
+        updates.documentType = 'Common Paper Cloud Service Agreement (CSA)';
+        summary.push("Document Template set to 'Common Paper Cloud Service Agreement (CSA)'");
+      } else if (text.includes('dpa') || text.includes('data processing')) {
+        updates.documentType = 'Common Paper Data Processing Addendum (DPA)';
+        summary.push("Document Template set to 'Common Paper Data Processing Addendum (DPA)'");
+      }
+
       if (text.includes('acme') || text.includes('party 1')) {
         updates.party1 = {
           ...data.party1,
@@ -195,6 +209,9 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       ]);
     } finally {
       setIsLoading(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
   };
 
@@ -286,6 +303,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
           className="flex items-center gap-2"
         >
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -305,4 +323,5 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
     </div>
   );
 };
+
 

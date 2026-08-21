@@ -75,9 +75,11 @@ const CATALOG_DATA: TemplateItem[] = [
 interface CatalogModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectTemplate?: (templateName: string) => void;
+  currentDocumentType?: string;
 }
 
-export const CatalogModal: React.FC<CatalogModalProps> = ({ isOpen, onClose }) => {
+export const CatalogModal: React.FC<CatalogModalProps> = ({ isOpen, onClose, onSelectTemplate, currentDocumentType }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
@@ -143,29 +145,42 @@ export const CatalogModal: React.FC<CatalogModalProps> = ({ isOpen, onClose }) =
 
         {/* List of Templates */}
         <div className="p-4 overflow-y-auto space-y-3 flex-1 custom-scrollbar">
-          {filtered.map((item, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/40 transition-all space-y-1.5 group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <h3 className="text-xs font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">
-                    {item.name}
-                  </h3>
+          {filtered.map((item, idx) => {
+            const isActive = currentDocumentType ? currentDocumentType === item.name : item.filename.includes('Mutual-NDA');
+            return (
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/40 transition-all space-y-1.5 group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <h3 className="text-xs font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">
+                      {item.name}
+                    </h3>
+                  </div>
+                  {isActive ? (
+                    <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <CheckCircle2 className="w-3 h-3" /> Active in Editor
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (onSelectTemplate) {
+                          onSelectTemplate(item.name);
+                          onClose();
+                        }
+                      }}
+                      className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 transition-all cursor-pointer"
+                    >
+                      Select Template
+                    </button>
+                  )}
                 </div>
-                {item.filename.includes('Mutual-NDA') ? (
-                  <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="w-3 h-3" /> Active in Editor
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-mono text-slate-500">{item.filename}</span>
-                )}
+                <p className="text-xs text-slate-400 leading-relaxed pl-6">{item.description}</p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-6">{item.description}</p>
-            </div>
-          ))}
+            );
+          })}
 
           {filtered.length === 0 && (
             <div className="text-center py-10 text-slate-500 text-xs">

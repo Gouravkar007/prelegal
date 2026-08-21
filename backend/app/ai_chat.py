@@ -24,9 +24,30 @@ US_STATES = [
     "Wisconsin", "Wyoming"
 ]
 
+TEMPLATE_MAP = {
+    "mutual nda": "Common Paper Mutual NDA",
+    "nda": "Common Paper Mutual NDA",
+    "cover page": "Common Paper Mutual NDA Cover Page",
+    "csa": "Common Paper Cloud Service Agreement (CSA)",
+    "cloud service": "Common Paper Cloud Service Agreement (CSA)",
+    "sla": "Common Paper Service Level Agreement (SLA) Addendum",
+    "service level": "Common Paper Service Level Agreement (SLA) Addendum",
+    "dpa": "Common Paper Data Processing Addendum (DPA)",
+    "data processing": "Common Paper Data Processing Addendum (DPA)",
+    "design partner": "Common Paper Design Partner Agreement",
+    "psa": "Common Paper Professional Services Agreement (PSA)",
+    "professional services": "Common Paper Professional Services Agreement (PSA)",
+    "partnership": "Common Paper Partnership Agreement",
+    "baa": "Common Paper Business Associate Agreement (BAA) Addendum",
+    "business associate": "Common Paper Business Associate Agreement (BAA) Addendum",
+    "software license": "Common Paper Software License Agreement",
+    "pilot": "Common Paper Pilot Agreement",
+    "ai addendum": "Common Paper AI Addendum",
+}
+
 
 class AIChatResponseSchema(BaseModel):
-    reply: str = Field(..., description="Friendly summary of the updates made and follow up questions.")
+    reply: str = Field(..., description="Friendly summary of the updates made, ending with a follow-up question for missing info.")
     updated_fields: Dict[str, Any] = Field(default_factory=dict, description="Extracted legal document fields to update.")
 
 
@@ -69,13 +90,38 @@ def _merge_party_data(current: dict, new_data: dict) -> dict:
     return merged
 
 
+def _generate_follow_on_question(current_data: dict, updated_fields: dict) -> str:
+    """Generates a targeted follow-on question based on missing legal fields."""
+    merged_p1 = _merge_party_data(current_data.get("party1", {}), updated_fields.get("party1", {}))
+    merged_p2 = _merge_party_data(current_data.get("party2", {}), updated_fields.get("party2", {}))
+
+    p1_name = merged_p1.get("name") or merged_p1.get("companyName")
+    p2_name = merged_p2.get("name") or merged_p2.get("companyName")
+    purpose = updated_fields.get("purpose") or current_data.get("purpose")
+    gov_law = updated_fields.get("governingLawState") or current_data.get("governingLawState")
+    term = updated_fields.get("agreementTermYears") or current_data.get("mndaTermYears") or current_data.get("agreementTermYears")
+
+    if not p1_name or p1_name == "Apex Innovations Inc.":
+        return "What is the legal name of Party 1 (your company)?"
+    if not p2_name or p2_name == "Nexus Cloud Technologies LLC":
+        return "What is the legal name of Party 2 (the counterparty)?"
+    if not purpose or len(str(purpose)) < 8:
+        return "What is the primary business purpose for this agreement?"
+    if not gov_law:
+        return "Which US state's governing law should apply (e.g. Delaware, California, New York)?"
+    if not term:
+        return "How many years should the agreement term duration last?"
+
+    return "Would you like to customize optional terms (like confidentiality duration) or preview the completed agreement?"
+
+
 def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
     """
-    Processes freeform AI chat for Common Paper legal document drafting.
+    Processes freeform AI chat for Common Paper legal document drafting (all 11 catalog document templates).
     1. Uses LiteLLM via OpenRouter to `openrouter/openai/gpt-oss-20b` with Cerebras inference provider.
     2. Uses Structured Outputs via Pydantic for JSON schema extraction.
     3. Merges updated fields with existing current_data to preserve party details.
-    4. Includes robust local NLP fallback rule engine.
+    4. Includes robust local NLP fallback rule engine with guaranteed follow-on questions.
     """
     if messages is None:
         messages = []
@@ -100,11 +146,14 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
         ]
 
         system_prompt = (
-            "You are PreLegal AI, an intelligent legal assistant helping users fill out and customize Common Paper legal documents.\n"
+            "You are PreLegal AI, an intelligent legal assistant helping users fill out and customize all 11 Common Paper legal documents.\n"
+            "Supported templates: Mutual NDA, Cloud Service Agreement (CSA), SLA, DPA, Design Partner Agreement, PSA, Partnership, BAA, Software License, Pilot, AI Addendum.\n"
+            "CRITICAL REQUIREMENT: Your 'reply' MUST ALWAYS end with a friendly follow-on question asking for any missing information or next steps.\n"
             "Interpret the user's instructions and return ONLY a valid JSON object matching this schema:\n"
             "{\n"
-            '  "reply": "Friendly response summarizing the updates and asking about remaining fields.",\n'
+            '  "reply": "Summary of updates made. Always end with a follow-on question asking about remaining fields.",\n'
             '  "updated_fields": {\n'
+            '    "documentType": "Common Paper Mutual NDA" | "Common Paper Cloud Service Agreement (CSA)" | ..., (optional)\n'
             '    "party1": {"name": "...", "type": "...", "state": "...", "address": "...", "email": "...", "signerName": "...", "signerTitle": "..."}, (optional)\n'
             '    "party2": {"name": "...", "type": "...", "state": "...", "address": "...", "email": "...", "signerName": "...", "signerTitle": "..."}, (optional)\n'
             '    "purpose": "...", (optional)\n'
@@ -127,7 +176,6 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
 
         for model in models_to_try:
             try:
-                # Try litellm completion with Structured Output / response_format
                 response = litellm.completion(
                     model=model,
                     messages=formatted_messages,
@@ -156,13 +204,18 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
                             if "party2" in uf and isinstance(uf["party2"], dict):
                                 uf["party2"] = _merge_party_data(current_data.get("party2", {}), uf["party2"])
 
+                            reply_str = str(parsed.get("reply", "Updates applied successfully."))
+                            # Ensure follow-on question is present
+                            if not reply_str.rstrip().endswith("?"):
+                                question = _generate_follow_on_question(current_data, uf)
+                                reply_str = f"{reply_str} {question}"
+
                             return {
-                                "reply": str(parsed.get("reply", "Updates applied successfully.")),
+                                "reply": reply_str,
                                 "updated_fields": uf,
                                 "status": "success"
                             }
             except Exception:
-                # Try fallback json_object format if schema format failed
                 try:
                     response = litellm.completion(
                         model=model,
@@ -183,8 +236,14 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
                                     uf["party1"] = _merge_party_data(current_data.get("party1", {}), uf["party1"])
                                 if "party2" in uf and isinstance(uf["party2"], dict):
                                     uf["party2"] = _merge_party_data(current_data.get("party2", {}), uf["party2"])
+
+                                reply_str = str(parsed.get("reply", "Updates applied successfully."))
+                                if not reply_str.rstrip().endswith("?"):
+                                    question = _generate_follow_on_question(current_data, uf)
+                                    reply_str = f"{reply_str} {question}"
+
                                 return {
-                                    "reply": str(parsed.get("reply", "Updates applied successfully.")),
+                                    "reply": reply_str,
                                     "updated_fields": uf,
                                     "status": "success"
                                 }
@@ -195,17 +254,23 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
     updated_fields: Dict[str, Any] = {}
     updates_summary: List[str] = []
     text = last_user_msg or ""
+    lower_text = text.lower()
+
+    # Template detection across all 11 catalog document types
+    for key_phrase, template_name in TEMPLATE_MAP.items():
+        if key_phrase in lower_text:
+            updated_fields["documentType"] = template_name
+            updates_summary.append(f"Document Template set to '{template_name}'")
+            break
 
     # State / Location detection using canonical state list
     matched_state = None
-    lower_text = text.lower()
     for st in US_STATES:
         pattern = r'\b' + re.escape(st.lower()) + r'\b'
         if re.search(pattern, lower_text):
             matched_state = st
             break
 
-    # Determine state context (Party 1, Party 2, or Governing Law)
     if matched_state:
         if any(term in lower_text for term in ["party 1", "first party", "our company", "we are"]):
             p1_dict = _merge_party_data(current_data.get("party1", {}), updated_fields.get("party1", {}))
@@ -317,7 +382,7 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
         updated_fields["confidentialityTermYears"] = 5
         updates_summary.append("Confidentiality Term set to 5 Years Fixed")
 
-    # Agreement term years detection (ensure confidentiality term isn't mistaken for agreement term)
+    # Agreement term years detection
     if "confidentiality" not in text.lower():
         term_match = re.search(
             r'(?:agreement\s+term|term\s+of\s+(?:the\s+)?agreement|agreement\s+duration|term\s+is|term\s+to|term\s+for|agreement\s+for|set\s+term\s+to)\s*(?:is|to|=|:)?\s*(\d+)\s*year[s]?',
@@ -344,14 +409,18 @@ def process_ai_chat(messages: list = None, current_data: dict = None) -> dict:
     if "party2" in updated_fields and isinstance(updated_fields["party2"], dict):
         updated_fields["party2"] = _merge_party_data(current_data.get("party2", {}), updated_fields["party2"])
 
+    # Guaranteed follow-on question
+    follow_on = _generate_follow_on_question(current_data, updated_fields)
+
     if updates_summary:
-        reply_text = f"Got it! I've updated your legal document with: {', '.join(updates_summary)}. What else would you like to customize?"
+        reply_text = f"Got it! I've updated your legal document with: {', '.join(updates_summary)}. {follow_on}"
     else:
-        reply_text = "I'm ready to help you customize your Common Paper legal document! You can specify Party details (Company names, entity types, addresses), Purpose of sharing confidential information, Agreement Term, or Governing Law state."
+        reply_text = f"I'm ready to help you customize any of the 11 Common Paper legal document templates! {follow_on}"
 
     return {
         "reply": reply_text,
         "updated_fields": updated_fields,
         "status": "success"
     }
+
 

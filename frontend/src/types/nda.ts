@@ -8,6 +8,7 @@ export interface NDAParty {
 }
 
 export interface NDAData {
+  documentType?: string;
   party1: NDAParty;
   party2: NDAParty;
   purpose: string;
@@ -130,6 +131,7 @@ export const SAMPLE_PRESETS: PresetScenario[] = [
 ];
 
 export const DEFAULT_NDA_DATA: NDAData = {
+  documentType: 'Common Paper Mutual NDA',
   party1: {
     companyName: 'Apex Innovations Inc.',
     entityType: 'Delaware Corporation',

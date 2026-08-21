@@ -166,7 +166,12 @@ export default function Home() {
       </main>
 
       {/* Common Paper Catalog Modal */}
-      <CatalogModal isOpen={isCatalogOpen} onClose={() => setIsCatalogOpen(false)} />
+      <CatalogModal
+        isOpen={isCatalogOpen}
+        onClose={() => setIsCatalogOpen(false)}
+        currentDocumentType={ndaData.documentType}
+        onSelectTemplate={(templateName) => handleUpdate({ documentType: templateName })}
+      />
     </div>
   );
 }

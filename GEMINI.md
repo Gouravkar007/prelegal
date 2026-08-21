@@ -69,3 +69,11 @@ Backend available at http://localhost:8000
 - **FastAPI Endpoint**: Exposed `/api/chat` endpoint processing message history and document state, returning populated fields and friendly assistant response summaries.
 - **Automated Test Suite**: 16 passing Pytest unit/integration tests in `backend/tests/` and Vitest frontend tests.
 
+### PL-6: Multi-Document AI Chat & UI Enhancements (Completed)
+- **Multi-Document Support (All 11 Catalog Templates)**: Expanded `backend/app/ai_chat.py` and `frontend/src/components/AIChatPanel.tsx` to detect, switch, and populate fields for all 11 Common Paper legal document templates indexed in `catalog.json` (Mutual NDA, CSA, SLA, DPA, Design Partner, PSA, Partnership, BAA, Software License, Pilot, AI Addendum).
+- **Automated Input Focus**: Added `inputRef` focus hook in `AIChatPanel.tsx` so the UI text input field automatically regains focus after sending messages and receiving AI responses.
+- **Guaranteed Follow-on Questions**: Enforced follow-on question generation in both LiteLLM system prompt and fallback rule engine so that the AI assistant always prompts for missing document details (e.g., Party 2 name, Purpose, Governing Law state, Agreement Term).
+- **Interactive Catalog Selection**: Updated `CatalogModal.tsx` and `page.tsx` allowing direct template selection and activation for all 12 Common Paper catalog entries.
+- **Automated Testing**: 18 Pytest backend tests and full Vitest frontend suite passing.
+
+

@@ -43,14 +43,15 @@ def test_ai_chat_merge_existing_data():
 def test_ai_chat_litellm_success(mock_completion):
     mock_response = MagicMock()
     mock_response.choices = [
-        MagicMock(message=MagicMock(content='{"reply": "LLM response applied", "updated_fields": {"purpose": "Evaluating partnership"}}'))
+        MagicMock(message=MagicMock(content='{"reply": "LLM response applied.", "updated_fields": {"purpose": "Evaluating partnership"}}'))
     ]
     mock_completion.return_value = mock_response
 
     with patch("app.ai_chat._get_openrouter_api_key", return_value="sk-or-valid-test-key"):
         res = process_ai_chat([{"role": "user", "content": "Hello"}], {})
         assert res["status"] == "success"
-        assert res["reply"] == "LLM response applied"
+        assert res["reply"].startswith("LLM response applied.")
+        assert res["reply"].endswith("?")
         assert res["updated_fields"]["purpose"] == "Evaluating partnership"
 
 
@@ -58,14 +59,15 @@ def test_ai_chat_litellm_success(mock_completion):
 def test_ai_chat_litellm_markdown_json_cleaning(mock_completion):
     mock_response = MagicMock()
     mock_response.choices = [
-        MagicMock(message=MagicMock(content='```json\n{"reply": "Markdown cleaned", "updated_fields": {"agreementTermYears": 3}}\n```'))
+        MagicMock(message=MagicMock(content='```json\n{"reply": "Markdown cleaned.", "updated_fields": {"agreementTermYears": 3}}\n```'))
     ]
     mock_completion.return_value = mock_response
 
     with patch("app.ai_chat._get_openrouter_api_key", return_value="sk-or-valid-test-key"):
         res = process_ai_chat([{"role": "user", "content": "Hello"}], {})
         assert res["status"] == "success"
-        assert res["reply"] == "Markdown cleaned"
+        assert res["reply"].startswith("Markdown cleaned.")
+        assert res["reply"].endswith("?")
         assert res["updated_fields"]["agreementTermYears"] == 3
 
 
@@ -98,4 +100,19 @@ def test_ai_chat_empty_messages():
     res = process_ai_chat(None, None)
     assert res["status"] == "success"
     assert "ready to help" in res["reply"].lower()
+
+
+def test_ai_chat_template_selection():
+    messages = [{"role": "user", "content": "Draft a Cloud Service Agreement (CSA)"}]
+    res = process_ai_chat(messages, {})
+    assert res["status"] == "success"
+    assert res["updated_fields"]["documentType"] == "Common Paper Cloud Service Agreement (CSA)"
+
+
+def test_ai_chat_follow_on_question_always_present():
+    messages = [{"role": "user", "content": "Set Party 1 to Acme Corp"}]
+    res = process_ai_chat(messages, {})
+    assert res["status"] == "success"
+    assert res["reply"].endswith("?")
+
 
