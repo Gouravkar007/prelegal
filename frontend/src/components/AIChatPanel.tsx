@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles, RefreshCw, CheckCircle } from 'lucide-react';
+import { Send, Bot, User, Sparkles, RefreshCw } from 'lucide-react';
 import { NDAData } from '../types/nda';
 
 interface Message {
@@ -70,7 +70,57 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
 
       if (response.ok) {
         const resData = await response.json();
-        const updatedFields = resData.updated_fields || {};
+        const rawFields = resData.updated_fields || {};
+        const updatedFields: Partial<NDAData> = {};
+
+        if (rawFields.party1) {
+          updatedFields.party1 = {
+            ...data.party1,
+            companyName: rawFields.party1.companyName || rawFields.party1.name || data.party1.companyName,
+            entityType: rawFields.party1.entityType || rawFields.party1.type || data.party1.entityType,
+            address: rawFields.party1.address || data.party1.address,
+            email: rawFields.party1.email || data.party1.email,
+            signatoryName: rawFields.party1.signatoryName || rawFields.party1.signerName || data.party1.signatoryName,
+            signatoryTitle: rawFields.party1.signatoryTitle || rawFields.party1.signerTitle || data.party1.signatoryTitle,
+          };
+        }
+
+        if (rawFields.party2) {
+          updatedFields.party2 = {
+            ...data.party2,
+            companyName: rawFields.party2.companyName || rawFields.party2.name || data.party2.companyName,
+            entityType: rawFields.party2.entityType || rawFields.party2.type || data.party2.entityType,
+            address: rawFields.party2.address || data.party2.address,
+            email: rawFields.party2.email || data.party2.email,
+            signatoryName: rawFields.party2.signatoryName || rawFields.party2.signerName || data.party2.signatoryName,
+            signatoryTitle: rawFields.party2.signatoryTitle || rawFields.party2.signerTitle || data.party2.signatoryTitle,
+          };
+        }
+
+        if (rawFields.purpose) {
+          updatedFields.purpose = rawFields.purpose;
+        }
+
+        if (rawFields.confidentialityTerm || rawFields.confidentialityTermType) {
+          const val = rawFields.confidentialityTerm || rawFields.confidentialityTermType;
+          updatedFields.confidentialityTermType = val === 'perpetuity' ? 'perpetuity' : 'years';
+        }
+
+        if (rawFields.confidentialityTermYears !== undefined) {
+          updatedFields.confidentialityTermYears = Number(rawFields.confidentialityTermYears);
+        }
+
+        if (rawFields.agreementTermYears !== undefined || rawFields.mndaTermYears !== undefined) {
+          updatedFields.mndaTermYears = Number(rawFields.mndaTermYears ?? rawFields.agreementTermYears);
+        }
+
+        if (rawFields.governingLawState) {
+          updatedFields.governingLawState = rawFields.governingLawState;
+        }
+
+        if (rawFields.jurisdiction) {
+          updatedFields.jurisdiction = rawFields.jurisdiction;
+        }
 
         if (Object.keys(updatedFields).length > 0) {
           onUpdate(updatedFields);
@@ -96,8 +146,8 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       if (text.includes('acme') || text.includes('party 1')) {
         updates.party1 = {
           ...data.party1,
-          name: query.includes('Acme') ? 'Acme Corp' : data.party1.name,
-          state: query.includes('Delaware') ? 'Delaware' : data.party1.state,
+          companyName: query.includes('Acme') ? 'Acme Corp' : data.party1.companyName,
+          entityType: query.includes('Delaware') ? 'Delaware Corporation' : data.party1.entityType,
         };
         summary.push('Updated Party 1 Details');
       }
@@ -105,8 +155,8 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       if (text.includes('global') || text.includes('tech') || text.includes('party 2')) {
         updates.party2 = {
           ...data.party2,
-          name: query.includes('Global Tech') ? 'Global Tech Inc' : data.party2.name,
-          state: query.includes('California') ? 'California' : data.party2.state,
+          companyName: query.includes('Global Tech') ? 'Global Tech Inc' : data.party2.companyName,
+          entityType: query.includes('California') ? 'California LLC' : data.party2.entityType,
         };
         summary.push('Updated Party 2 Details');
       }
@@ -117,12 +167,12 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
       }
 
       if (text.includes('perpetuity') || text.includes('perpetual')) {
-        updates.confidentialityTerm = 'perpetuity';
+        updates.confidentialityTermType = 'perpetuity';
         summary.push('Confidentiality Term set to Perpetuity');
       }
 
       if (text.includes('3 year')) {
-        updates.agreementTermYears = 3;
+        updates.mndaTermYears = 3;
         summary.push('Agreement Term set to 3 Years');
       }
 
@@ -130,9 +180,10 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
         onUpdate(updates);
       }
 
-      const replyContent = summary.length > 0
-        ? `I've updated the NDA: ${summary.join(', ')}. What else would you like to set?`
-        : "I've noted that! Tell me more about Party 1, Party 2, Purpose, Agreement Term, or Governing Law.";
+      const replyContent =
+        summary.length > 0
+          ? `I've updated the NDA: ${summary.join(', ')}. What else would you like to set?`
+          : "I've noted that! Tell me more about Party 1, Party 2, Purpose, Agreement Term, or Governing Law.";
 
       setMessages((prev) => [
         ...prev,
@@ -254,3 +305,4 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ data, onUpdate }) => {
     </div>
   );
 };
+
