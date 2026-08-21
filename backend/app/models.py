@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class UserCreate(BaseModel):
     email: str
@@ -21,6 +21,21 @@ class LoginResponse(BaseModel):
     message: str
     user: UserResponse
 
+class DocumentCreate(BaseModel):
+    user_id: int
+    title: str
+    document_type: str
+    data: Dict[str, Any]
+
+class DocumentResponse(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    document_type: str
+    data: Dict[str, Any]
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -33,3 +48,4 @@ class ChatResponse(BaseModel):
     reply: str
     updated_fields: dict
     status: str = "success"
+

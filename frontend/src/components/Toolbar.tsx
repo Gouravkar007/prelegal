@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { NDAData } from '../types/nda';
-import { Download, Copy, Printer, Check, FileDown, Sparkles, Loader2 } from 'lucide-react';
+import { Download, Copy, Printer, Check, FileDown, Sparkles, Loader2, Save } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -10,11 +10,43 @@ import { jsPDF } from 'jspdf';
 interface ToolbarProps {
   data: NDAData;
   documentRef: React.RefObject<HTMLDivElement | null>;
+  userId?: number;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({ data, documentRef }) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ data, documentRef, userId }) => {
   const [copied, setCopied] = React.useState(false);
   const [isExportingPdf, setIsExportingPdf] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [savedSuccess, setSavedSuccess] = React.useState(false);
+
+  const handleSaveDocument = async () => {
+    try {
+      setIsSaving(true);
+      const title = `${data.party1.companyName || 'Party 1'} vs ${data.party2.companyName || 'Party 2'} Agreement`;
+      const docType = data.documentType || 'Common Paper Mutual NDA';
+
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId || 1,
+          title,
+          document_type: docType,
+          data,
+        }),
+      });
+
+      if (res.ok) {
+        setSavedSuccess(true);
+        triggerConfetti();
+        setTimeout(() => setSavedSuccess(false), 2500);
+      }
+    } catch (err) {
+      console.error('Failed to save document:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const triggerConfetti = () => {
     confetti({
@@ -172,6 +204,22 @@ ${data.modifications}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        {/* Save Document */}
+        <button
+          type="button"
+          onClick={handleSaveDocument}
+          disabled={isSaving}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#753991] hover:bg-[#8844a8] text-white transition-all shadow-md shadow-[#753991]/20 disabled:opacity-50 cursor-pointer"
+        >
+          {isSaving ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : savedSuccess ? (
+            <Check className="w-3.5 h-3.5 text-emerald-300" />
+          ) : (
+            <Save className="w-3.5 h-3.5" />
+          )}
+          <span>{isSaving ? 'Saving...' : savedSuccess ? 'Saved!' : 'Save Document'}</span>
+        </button>
         {/* Copy Markdown */}
         <button
           type="button"

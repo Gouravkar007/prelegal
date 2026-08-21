@@ -88,6 +88,16 @@ export const NDADocumentPreview: React.FC<NDADocumentPreviewProps> = ({ data, do
         id="nda-document-canvas"
         className="bg-white text-slate-900 rounded-xl shadow-2xl p-6 sm:p-10 border border-slate-200 font-serif leading-relaxed text-sm max-w-4xl mx-auto print:shadow-none print:p-0 print:border-none print:rounded-none"
       >
+        {/* Legal Disclaimer Banner */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6 font-sans text-xs text-amber-900 flex items-start gap-2.5">
+          <span className="font-bold text-amber-800 uppercase tracking-wider shrink-0 bg-amber-200/60 px-1.5 py-0.5 rounded text-[10px]">
+            Legal Disclaimer
+          </span>
+          <p className="leading-snug text-[11px]">
+            This document is a draft generated for evaluation purposes only and is subject to final review and customization by a qualified legal professional prior to execution.
+          </p>
+        </div>
+
         {/* ========================================================================= */}
         {/* COVER PAGE */}
         {/* ========================================================================= */}

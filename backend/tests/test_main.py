@@ -61,6 +61,54 @@ def test_login_auth(client):
     assert data["status"] == "success"
     assert data["user"]["email"] == "login.test@prelegal.io"
 
+def test_register_user(client):
+    response = client.post(
+        "/api/auth/register",
+        json={"email": "registered.user@prelegal.io", "name": "Registered User", "password": "secretpassword"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["user"]["email"] == "registered.user@prelegal.io"
+
+    # Duplicate registration attempt should fail
+    dup_res = client.post(
+        "/api/auth/register",
+        json={"email": "registered.user@prelegal.io", "name": "Registered User", "password": "secretpassword"}
+    )
+    assert dup_res.status_code == 400
+
+def test_document_crud(client):
+    # Save a document
+    doc_payload = {
+        "user_id": 1,
+        "title": "Acme vs Beta MNDA",
+        "document_type": "Common Paper Mutual NDA",
+        "data": {"purpose": "Evaluating Partnership", "governingLawState": "Delaware"}
+    }
+    create_res = client.post("/api/documents", json=doc_payload)
+    assert create_res.status_code == 200
+    doc = create_res.json()
+    assert doc["id"] > 0
+    assert doc["title"] == "Acme vs Beta MNDA"
+
+    # List documents
+    list_res = client.get("/api/documents?user_id=1")
+    assert list_res.status_code == 200
+    docs = list_res.json()
+    assert len(docs) >= 1
+    assert docs[0]["title"] == "Acme vs Beta MNDA"
+
+    # Get single document
+    get_res = client.get(f"/api/documents/{doc['id']}")
+    assert get_res.status_code == 200
+    assert get_res.json()["id"] == doc["id"]
+
+    # Delete document
+    del_res = client.delete(f"/api/documents/{doc['id']}")
+    assert del_res.status_code == 200
+    assert del_res.json()["status"] == "success"
+
 def test_ai_chat(client):
     response = client.post(
         "/api/chat",
@@ -74,3 +122,4 @@ def test_ai_chat(client):
     assert data["status"] == "success"
     assert "reply" in data
     assert "updated_fields" in data
+

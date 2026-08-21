@@ -76,4 +76,12 @@ Backend available at http://localhost:8000
 - **Interactive Catalog Selection**: Updated `CatalogModal.tsx` and `page.tsx` allowing direct template selection and activation for all 12 Common Paper catalog entries.
 - **Automated Testing**: 18 Pytest backend tests and full Vitest frontend suite passing.
 
+### PL-7: Support Multiple Users, Saved Documents & Final Polish (Completed)
+- **User Sign Up & Sign In**: Expanded `LoginScreen.tsx` with Sign In and Sign Up tabs, connecting to `/api/auth/register` and `/api/auth/login` FastAPI endpoints with SQLite user persistence (`users` table).
+- **Document Persistence & Saved History**: Implemented `documents` table in SQLite (`database.py`) and CRUD REST API endpoints (`/api/documents`) allowing users to save, view, load, and delete previously generated agreements.
+- **Saved Documents Modal**: Added `SavedDocumentsModal.tsx` allowing users to restore past document drafts directly into the editor state.
+- **Legal Draft Disclaimer**: Added prominent legal draft disclaimer banner in `NDADocumentPreview.tsx` stating: *"This document is a draft generated for evaluation purposes only and is subject to final review and customization by a qualified legal professional prior to execution."*
+- **Final SaaS Polish & Automated Testing**: Polished header, toolbar, and forms with palette colors (`#ecad0a`, `#209dd7`, `#753991`, `#032147`). 20 Pytest backend tests and 18 Vitest frontend tests passing.
+
+
 

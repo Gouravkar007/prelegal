@@ -6,6 +6,7 @@ import { SAMPLE_PRESETS, NDAData } from '../types/nda';
 
 interface HeaderProps {
   onOpenCatalog: () => void;
+  onOpenSavedDocs: () => void;
   onReset: () => void;
   onSelectPreset: (data: Partial<NDAData>) => void;
   activeTab: 'edit' | 'preview';
@@ -16,6 +17,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenCatalog,
+  onOpenSavedDocs,
   onReset,
   onSelectPreset,
   activeTab,
@@ -126,6 +128,17 @@ export const Header: React.FC<HeaderProps> = ({
             </select>
           </div>
 
+          {/* Saved Documents Trigger */}
+          <button
+            onClick={onOpenSavedDocs}
+            aria-label="View saved documents history"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#209dd7]/10 hover:bg-[#209dd7]/20 text-[#209dd7] border border-[#209dd7]/30 transition-colors shadow-sm cursor-pointer"
+            title="View saved documents history"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Saved Docs</span>
+          </button>
+
           {/* Catalog Library Modal Trigger */}
           <button
             onClick={onOpenCatalog}
@@ -133,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors shadow-sm cursor-pointer"
             title="Browse all 12 Common Paper Legal Templates"
           >
-            <BookOpen className="w-3.5 h-3.5 text-[#209dd7]" />
+            <BookOpen className="w-3.5 h-3.5 text-[#ecad0a]" />
             <span className="hidden sm:inline">Templates Catalog</span>
           </button>
 

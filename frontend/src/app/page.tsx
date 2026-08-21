@@ -8,20 +8,22 @@ import { TermsForm } from '../components/TermsForm';
 import { NDADocumentPreview } from '../components/NDADocumentPreview';
 import { Toolbar } from '../components/Toolbar';
 import { CatalogModal } from '../components/CatalogModal';
+import { SavedDocumentsModal } from '../components/SavedDocumentsModal';
 import { LoginScreen } from '../components/LoginScreen';
 import { AIChatPanel } from '../components/AIChatPanel';
 import { Users, FileText, Bot, Sparkles } from 'lucide-react';
 
 export default function Home() {
-  const [user, setUser] = React.useState<{ email: string; name: string } | null>(null);
+  const [user, setUser] = React.useState<{ id?: number; email: string; name: string } | null>(null);
   const [ndaData, setNdaData] = React.useState<NDAData>(DEFAULT_NDA_DATA);
   const [stepTab, setStepTab] = React.useState<'chat' | 'parties' | 'terms'>('chat');
   const [mobileActiveTab, setMobileActiveTab] = React.useState<'edit' | 'preview'>('edit');
   const [isCatalogOpen, setIsCatalogOpen] = React.useState(false);
+  const [isSavedDocsOpen, setIsSavedDocsOpen] = React.useState(false);
 
   const documentRef = React.useRef<HTMLDivElement | null>(null);
 
-  const handleLogin = (userCreds: { email: string; name: string }) => {
+  const handleLogin = (userCreds: { id?: number; email: string; name: string }) => {
     setUser(userCreds);
   };
 
@@ -58,6 +60,7 @@ export default function Home() {
       {/* Navigation Header */}
       <Header
         onOpenCatalog={() => setIsCatalogOpen(true)}
+        onOpenSavedDocs={() => setIsSavedDocsOpen(true)}
         onReset={handleReset}
         onSelectPreset={handleSelectPreset}
         activeTab={mobileActiveTab}
@@ -158,7 +161,7 @@ export default function Home() {
           } print:block print:w-full print:m-0 print:p-0`}
         >
           {/* Action Toolbar */}
-          <Toolbar data={ndaData} documentRef={documentRef} />
+          <Toolbar data={ndaData} documentRef={documentRef} userId={user.id} />
 
           {/* Document Render Canvas */}
           <NDADocumentPreview data={ndaData} documentRef={documentRef} />
@@ -172,6 +175,15 @@ export default function Home() {
         currentDocumentType={ndaData.documentType}
         onSelectTemplate={(templateName) => handleUpdate({ documentType: templateName })}
       />
+
+      {/* Saved Documents History Modal */}
+      <SavedDocumentsModal
+        isOpen={isSavedDocsOpen}
+        onClose={() => setIsSavedDocsOpen(false)}
+        userId={user.id}
+        onLoadDocument={(loadedData) => setNdaData(loadedData)}
+      />
     </div>
   );
 }
+
