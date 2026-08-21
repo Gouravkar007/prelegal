@@ -61,3 +61,11 @@ Backend available at http://localhost:8000
 - **FastAPI Backend & SQLite**: `uv` FastAPI backend in `backend/` with auto-initializing SQLite database on startup (`users` table creation & seed demo data). Exposes `/api/health`, `/api/users`, and `/api/auth/login` endpoints while serving static frontend assets.
 - **Docker Containerization**: Multi-stage `Dockerfile` and cross-platform start/stop scripts in `scripts/` (`start-mac.sh`, `stop-mac.sh`, `start-linux.sh`, `stop-linux.sh`, `start-windows.ps1`, `stop-windows.ps1`) running on http://localhost:8000.
 - **Automated Testing**: 15 Vitest frontend unit/integration tests and 4 Pytest backend tests passing.
+
+### PL-5: Freeform AI Contract Drafter (Completed)
+- **LiteLLM & Cerebras Integration**: `backend/app/ai_chat.py` implementing LiteLLM via OpenRouter to `openrouter/openai/gpt-oss-20b` with Cerebras inference provider, Pydantic Structured Outputs (`AIChatResponseSchema`), robust Markdown JSON code block stripping, and model failover.
+- **Rule-Based NLP Fallback Engine**: Local extraction fallback engine supporting multi-word canonical US states (e.g. New York, Delaware), Party 1/2 details (name, type, state, signer title), purpose, confidentiality term/years, and agreement term years.
+- **Frontend AI Chat Panel Component**: Interactive `AIChatPanel.tsx` in Next.js with real-time field auto-population, quick suggestion prompts, responsive chat bubbles, and offline fallback parser.
+- **FastAPI Endpoint**: Exposed `/api/chat` endpoint processing message history and document state, returning populated fields and friendly assistant response summaries.
+- **Automated Test Suite**: 16 passing Pytest unit/integration tests in `backend/tests/` and Vitest frontend tests.
+
